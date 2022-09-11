@@ -80,8 +80,8 @@
               </button>
             </div>
           </div>
-
-          <div class="card">
+<!-- //get rid of 2 card because we will only need one for the loop  -->
+          <!-- <div class="card">
             <div class="card-title">
               Pineapples
             </div>
@@ -155,13 +155,18 @@
             <div class="card-footer">
               <button  @click="addToCart('cherries')"  class="btn btn-light">Add to cart</button>
             </div>
-          </div>
+          </div> -->
 
         </div>
 
       </main>
       <!-- // this is the view component sidebar and :toggle="toggleSidebar" is a view variable putting : -->
-        <sidebar v-if="showsidebar" :toggle="toggleSidebar" />
+        <sidebar 
+        v-if="showsidebar"
+         :toggle="toggleSidebar"
+         :cart="cart"
+          />
+
       <footer>
       </footer>
 
@@ -173,11 +178,7 @@
         data() {
           return {
             showsidebar: false,
-            inventory: {
-              carrots: 0,
-              pineapples: 0,
-              cherries: 0
-            },
+            inventory: [],
             cart: {
               carrots: 0,
               pineapples: 0,
@@ -194,11 +195,25 @@
           toggleSidebar(){
             this.showsidebar = !this.showsidebar
           }
+        },
+        //created the lifecycle hook to get data which is the array of food objects 
+       async mounted(){
+         const res = await fetch('./food.json')
+         const data =await res.json()
+         this.inventory = data
         }
       })
      
      app.component('sidebar',{
-      props:['toggle'],
+      props:['toggle', 'cart'],
+      //computed object - watches the changes in variables and update the results
+      computed:{
+        cartTotal(){
+          //for right now we are going to hard core the items 
+         return  this.cart.carrots * 4.82
+
+        }
+      },
         template:`
         <aside class="cart-container">
         <div class="cart">
@@ -227,8 +242,8 @@
                   <td><i class="icofont-carrot icofont-3x"></i></td>
                   <td>Carrot</td>
                   <td>$1.00</td>
-                  <td class="center">1</td>
-                  <td>$1.00</td>
+                  <td class="center">{{cart.carrots}}</td>
+                  <td>\${{cart.carrots * 4.82}}</td>
                   <td class="center">
                     <button class="btn btn-light cart-remove">
                       &times;
@@ -240,7 +255,7 @@
 
             <p class="center"><em>No items in cart</em></p>
             <div class="spread">
-              <span><strong>Total:</strong> $1.00</span>
+              <span><strong>Total:</strong> \${{cartTotal}}</span>
               <button class="btn btn-light">Checkout</button>
             </div>
           </div>
